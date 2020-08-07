@@ -20,6 +20,12 @@ import java.util.Date;
 @Service
 public class ProcedureConnector extends OpenEhrConnector {
     protected String getAQL() {
+//        return "select\n" +
+//            "e/ehr_id/value as ehrId\n"+
+//            "from EHR e\n"+
+//            "contains COMPOSITION a  [openEHR-EHR-COMPOSITION.procedure_list.v0]\n"+
+//            "contains ACTION b_a  [openEHR-EHR-ACTION.procedure.v1]\n";
+
         return "select\n" +
                 "   e/ehr_id/value as ehrId,\n" +
                 "   e/ehr_status/subject/external_ref/id/value as subjectId,\n" +
@@ -53,9 +59,8 @@ public class ProcedureConnector extends OpenEhrConnector {
                 "   b_a/ism_transition/careflow_step/defining_code/code_string as Careflow_step_code,\n" +
                 "   b_a/description[at0001]/items[at0049]/value/value as Description\n" +
                 "from EHR e\n" +
-                "contains COMPOSITION a[openEHR-EHR-COMPOSITION.health_summary.v1]\n" +
-                "contains ACTION b_a[openEHR-EHR-ACTION.procedure.v1]\n" +
-                "where a/name/value='Procedures list'";
+                "contains COMPOSITION a[openEHR-EHR-COMPOSITION.procedure_list.v0]\n" +
+                "contains ACTION b_a[openEHR-EHR-ACTION.procedure.v1]" ;
     }
 
 

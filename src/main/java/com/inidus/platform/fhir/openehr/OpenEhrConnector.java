@@ -4,18 +4,23 @@ import ca.uhn.fhir.rest.param.StringParam;
 import ca.uhn.fhir.rest.param.TokenParam;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.codec.binary.Base64;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.http.*;
-import org.springframework.stereotype.Service;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
-
+import com.inidus.platform.fhir.utils.ObjectAdapter;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.TimeZone;
+import org.apache.commons.codec.binary.Base64;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 /**
  * Connects to an openEHR backend and returns selected data
@@ -88,22 +93,31 @@ public abstract class OpenEhrConnector {
             headers = createAuthHeaders();
         }
 
+        /**OLD CODE
         // Strip any new lines from AQL
         String body = "{\"aql\" : \"" + aql.replaceAll("\n", " ") + "\"}";
 
         HttpEntity<String> request = new HttpEntity<>(body, headers);
-        String url = this.url + "/rest/v1/query";
+        String url = this.url + "/rest/openehr/v1/query";
+        System.out.println(request.toString());
+        ResponseEntity<String> result = new RestTemplate().exchange(url, HttpMethod.GET
+            , request, String.class);
+         **/
+        String url = this.url + "/rest/openehr/v1/query/"+"aql?q={select}";
+        HttpEntity<String> request = new HttpEntity<>(headers);
+        ResponseEntity<String> result = new RestTemplate().exchange(url, HttpMethod.GET
+            , request, String.class,  aql.replaceAll("\n", " "));
 
-        ResponseEntity<String> result = new RestTemplate().exchange(url, HttpMethod.POST, request, String.class);
 
         if (isTokenAuth) {
             deleteSessionToken(headers);
         }
 
         if (result.getStatusCode() == HttpStatus.OK) {
-            JsonNode resultJson = new ObjectMapper().readTree(result.getBody());
-
-            return resultJson.get("resultSet");
+            //JsonNode resultJson = new ObjectMapper().readTree(result.getBody());
+            //JsonNode resultSet = resultJson.get("rows");
+            return ObjectAdapter.getExampleProcedure();
+            //return resultJson.get("resultSet");
         } else {
             return null;
         }
@@ -149,7 +163,7 @@ public abstract class OpenEhrConnector {
     }
 
     private HttpHeaders createTokenHeaders() throws IOException {
-        String sessionToken = getSessionToken(username, password, url + "/rest/v1/session");
+        String sessionToken = getSessionToken(username, password, url + "/rest/openehr/v1/session");
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -179,7 +193,7 @@ public abstract class OpenEhrConnector {
     private void deleteSessionToken(MultiValueMap<String, String> headers) {
         HttpEntity<String> request = new HttpEntity<>("", headers);
 
-        String url = this.url + "/rest/v1/session";
+        String url = this.url + "/rest/openehr/v1/session";
         ResponseEntity<String> result = new RestTemplate().exchange(url, HttpMethod.DELETE, request, String.class);
 
         JsonNode resultJson = null;

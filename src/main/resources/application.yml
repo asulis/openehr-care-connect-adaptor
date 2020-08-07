@@ -3,36 +3,36 @@ spring:
   thymeleaf.cache: false
 logging:
   level:
-    org.springframework.web: INFO
-    guru.springframework.controllers: INFO
-    org.hibernate: INFO
-    com.inidus.platform: INFO
+    org.springframework.web: TRACE
+    guru.springframework.controllers: TRACE
+    org.hibernate: TRACE
+    com.inidus.platform: TRACE
 cdr-connector:
-  url: 'http://178.62.71.220:8080'
-  username: guest
-  password: guest
-  is-token-auth: true
+  url: 'http://localhost:8080/ehrbase'
+  username: ehrbase
+  password: ehrbase
+  is-token-auth: false
 server:
   port: 8081
 
----
-spring:
-  profiles: marand
-cdr-connector:
-  url: 'https://test.operon.systems'
-  username: oprn_hcbox
-  password: XioTAJoO479
-  is-token-auth: false
-server:
-  port: 8082
 
----
-spring:
-  profiles: ethercis
-cdr-connector:
-  url: 'http://178.62.71.220:8080'
-  username: guest
-  password: guest
-  is-token-auth: true
-server:
-  port: 8083
+#spring:
+#  profiles: marand
+#cdr-connector:
+#  url: 'https://test.operon.systems'
+#  username: oprn_hcbox
+#  password: XioTAJoO479
+#  is-token-auth: false
+#server:
+#  port: 8082
+
+#---
+#spring:
+#  profiles: ethercis
+#cdr-connector:
+#  url: 'http://178.62.71.220:8080'
+#  username: guest
+#  password: guest
+#  is-token-auth: true
+#server:
+#  port: 8083
